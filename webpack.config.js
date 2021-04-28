@@ -26,18 +26,55 @@ const optimization = () => {
     return config
 }
 
+const filename = ext => isDev ? `[name].${ext}` : `[name].[hash].${ext}`
 
-console.log('IS DEV', isDev)
+const cssLoaders = (extra) => {
+    const loaders = [{
+        loader: MiniCssExtractPlugin.loader,
+        options: {
+            // TODO hrm: isDev,
+            // reloadAll: true
+        },
+    }, 'css-loader']
+    if (extra) {
+        loaders.push(extra)
+    }
+    return loaders
+}
+
+const babelOptions = (preset) => {
+    const opt = {
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-proposal-class-properties']
+    }
+
+    if (preset) {
+        opt.presets.push(preset)
+    }
+
+    return opt
+}
+
+const jsLoaders = () => {
+    const loaders = [{
+        loader: 'babel-loader',
+        options: babelOptions()
+    }]
+    if (isDev) {
+        loaders.push({loader:'eslint-loader'})
+    }
+    return loaders
+}
 
 module.exports = {
     context: path.resolve(__dirname, 'src'),
     mode: 'development',
     entry: {
-        main:'./index.js',
-        analytics: './analytics.js'
+        main:['@babel/polyfill','./index.jsx'],
+        analytics: './analytics.ts'
     },
     output: {
-        filename: '[name].[contenthash].js',
+        filename: filename('js'),
         path: path.resolve(__dirname, 'dist')
     },
     resolve:{
@@ -53,6 +90,7 @@ module.exports = {
         open: true,
         hot: isDev
     },
+    devtool: isDev ? 'source-map' : '',
     plugins: [
         new HTMLWebpackPlugin({
             template: "./index.html",
@@ -69,20 +107,22 @@ module.exports = {
                 }
             ]}),
         new MiniCssExtractPlugin({
-            filename: '[name].[contenthash].css'
+            filename: filename('css')
         })
     ],
     module: {
         rules: [
             {
                 test:/\.css$/,
-                use: [{
-                    loader: MiniCssExtractPlugin.loader,
-                    options: {
-                        // TODO hrm: isDev,
-                        // reloadAll: true
-                    },
-                }, 'css-loader']
+                use: cssLoaders()
+            },
+            {
+                test:/\.less$/,
+                use: cssLoaders('less-loader')
+            },
+            {
+                test:/\.s[ac]ss$/,
+                use: cssLoaders('sass-loader')
             },
             {
                 test:/\.(png|jpg|svg|gif)$/,
@@ -99,6 +139,27 @@ module.exports = {
             {
                 test: /\.csv$/,
                 use: ['csv-loader']
+            },
+            {
+                test: /\.js$/,
+                use: jsLoaders(),
+                exclude: '/node_modules/',
+            },
+            {
+                test: /\.ts$/,
+                use: {
+                    loader: "babel-loader",
+                    options: babelOptions('@babel/preset-typescript')
+                },
+                exclude: '/node_modules/',
+            },
+            {
+                test: /\.jsx$/,
+                use: {
+                    loader: "babel-loader",
+                    options: babelOptions('@babel/preset-react')
+                },
+                exclude: '/node_modules/',
             },
         ]
     }

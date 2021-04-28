@@ -1,6 +1,6 @@
 import * as $ from 'jquery'
 
-function createAnalytics () {
+function createAnalytics ():object {
     let counter = 0
     let isDestroyed = false
     const listener = () => counter++
@@ -20,4 +20,4 @@ function createAnalytics () {
 
     }
 }
-window.analytics = createAnalytics()
+window['analytics'] = createAnalytics()

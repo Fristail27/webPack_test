@@ -7,7 +7,8 @@
     "dev": "cross-env NODE_ENV=development webpack --mode development",
     "build": "cross-env NODE_ENV=development=production webpack --mode production",
     "watch": "cross-env NODE_ENV=development webpack --mode development --watch",
-    "start": "cross-env NODE_ENV=development webpack serve --mode development"
+    "start": "cross-env NODE_ENV=development webpack serve --mode development",
+    "stats": "webpack --json > stats.json && webpack-bundle-analyzer stats.json"
   },
   "browserslist": "> 0.25%, not dead",
   "keywords": [
@@ -42,6 +43,7 @@
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^5.1.1",
     "webpack": "^5.35.1",
+    "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^3.11.2",
     "xml-loader": "^1.2.1"
